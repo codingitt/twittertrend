@@ -1,7 +1,7 @@
-pipipeline{
+pipeline{
     agent{
         node{
-            label "slavejob"
+            label "slave"
         }
     }
     environment {
@@ -10,7 +10,7 @@ pipipeline{
     stages{
         stage ("Clone the code"){
             steps{
-                git branch: 'main', url: 'https://github.com/Bathalapalli-SaiRangaPavan/twittertrend.git'
+                git branch: 'main', url: 'https://github.com/ravdy/twittertrend.git'
             }
         }
         stage ("Build the code"){
@@ -29,8 +29,7 @@ pipipeline{
                 }
 
             }
-        
         }
-        
-                }
-            }
+    }
+}
+
