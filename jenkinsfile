@@ -2,7 +2,7 @@ def registry = 'https://hema.jfrog.io'
 pipeline{
     agent{
         node{
-            label "jenkins_node"
+            label "slave_node"
         }
     }
     environment {
