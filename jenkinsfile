@@ -1,7 +1,8 @@
+def registry = 'https://hema.jfrog.io'
 pipeline{
     agent{
         node{
-            label "slave_node"
+            label "jenkins_node"
         }
     }
     environment {
@@ -10,7 +11,7 @@ pipeline{
     stages{
         stage ("Clone the code"){
             steps{
-                git branch: 'main', url: 'https://github.com/ravdy/twittertrend.git'
+                git branch: 'main', url: 'https://github.com/codingitt/twittertrend.git'
             }
         }
         stage ("Build the code"){
@@ -23,13 +24,38 @@ pipeline{
                 scannerHome = tool 'Java_SonarQube_Scanner'
             }
             steps{
-                withSonarQubeEnv('sonartext'){
+                withSonarQubeEnv('sonarserver'){
                       sh "${scannerHome}/bin/sonar-scanner"
             
                 }
 
             }
         }
+             
+         stage("Jar Publish") {
+        steps {
+            script {
+                    echo '<--------------- Jar Publish Started --------------->'
+                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_password"
+                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                     def uploadSpec = """{
+                          "files": [
+                            {
+                              "pattern": "jarstaging/(*)",
+                              "target": "taxi_grabber-libs-release-local/{1}",
+                              "flat": "false",
+                              "props" : "${properties}",
+                              "exclusions": [ "*.sha1", "*.md5"]
+                            }
+                         ]
+                     }"""
+                     def buildInfo = server.upload(uploadSpec)
+                     buildInfo.env.collect()
+                     server.publishBuildInfo(buildInfo)
+                     echo '<--------------- Jar Publish Ended --------------->'  
+            
+            }
+        }   
+    }   
     }
 }
-
